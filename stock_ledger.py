@@ -9,12 +9,6 @@ class StockLedger:
     def __len__(self):
         return len(self.ledger_entries)
     
-    def get_entry(self, stock_symbol: str) -> LedgerEntry:
-        for each_entry in self.ledger_entries:
-            if each_entry.symbol == stock_symbol:
-                return each_entry
-        return None
-
     def buy(self, stock_symbol, shares_bought, cost_per_share) -> None:  # required
         buy_entry = self.get_entry(stock_symbol)
         if buy_entry is None:
@@ -32,10 +26,18 @@ class StockLedger:
                 sell_entry.remove_purchase()
 
     def display_ledger(self) -> None:  # required
-        pass
+        print("----  Stock Ledger  ----")
+        for each_entry in self.ledger_entries:
+            each_entry.display_entry()
 
     def contains(self, stock_symbol) -> bool:  # required
-        pass
+        for each_entry in self.ledger_entries:
+            if each_entry.symbol == stock_symbol:
+                return True
+        return False
 
-    def get_entry(self, stock_symbol) -> LedgerEntry:  # required
-        pass
+    def get_entry(self, stock_symbol: str) -> LedgerEntry:  # required
+        for each_entry in self.ledger_entries:
+            if each_entry.symbol == stock_symbol:
+                return each_entry
+        return None

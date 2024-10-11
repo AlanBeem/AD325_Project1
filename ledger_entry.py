@@ -6,15 +6,12 @@ class LedgerEntry:
         self._linked_deque = LinkedDeque()
         self.symbol = stock_symbol
 
-    # def __str__(self) -> str:
-    #     pass
-
     def add_purchase(self, new_purchase: StockPurchase) -> None:  # required
         if new_purchase.symbol == self.symbol:
             self._linked_deque.add_to_back(new_purchase)
 
     def remove_purchase(self) -> None:  # required
-        self._linked_deque.remove_front()
+        return self._linked_deque.remove_front()
 
     def equals(self, other) -> bool:  # required
         equal_bool = False
@@ -26,4 +23,4 @@ class LedgerEntry:
         return equal_bool
 
     def display_entry(self) -> None:  # required
-        print(f"{str(self)}\n{str(self._linked_deque)}")
+        front_ledger_item = self._linked_deque.get_front()
