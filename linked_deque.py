@@ -80,7 +80,7 @@ class LinkedDeque:
         else:
             self.front = self.front.get_next_node()
             self.front.set_previous_node(None)
-        front_node.set_next_node(None)
+        # front_node.set_next_node(None)
         return front_node
 
     def remove_back(self) -> None:  # required
@@ -90,7 +90,7 @@ class LinkedDeque:
         else:
             self.back = self.back.get_previous_node()
             self.back.set_next_node(None)
-        back_node.set_previous_node(None)
+        # back_node.set_previous_node(None)
         return back_node
 
     def clear(self) -> None:  # required
