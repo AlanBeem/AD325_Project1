@@ -4,25 +4,61 @@ class LinkedDeque:
         # self.back = None  # In Java one might use self.clear
         self.clear()
 
+    # def __eq__(self, other) -> bool:
+    #     """ ... and puts the deques back as they were passed."""
+    #     # TODO ad315 statement for this method re (multi)sets representing deques
+    #     # this assumes that different orders are different deques
+    #     equal_bool = False
+    #     if isinstance(other, self.__class__):
+    #         equal_bool = True
+    #         front_deque_self = self.remove_front()
+    #         self.add_to_back(front_deque_self)
+    #         current_deque_self = self.remove_front()
+    #         self.add_to_back(current_deque_self)
+    #         front_deque_other = other.remove_front()
+    #         other.add_to_back(front_deque_other)
+    #         current_deque_other = other.remove_front()
+    #         other.add_to_back(current_deque_self)
+    #         # maybe do a while boolean loop to effect a do loop
+    #         while (current_deque_other != current_deque_self  # align the deques
+    #                and current_deque_other is not front_deque_other):  # O(Nother)
+    #             current_deque_other = other.remove_front()
+    #             other.add_to_back(current_deque_other)
+    #         else:
+    #             if current_deque_other != current_deque_self:
+    #                 current_deque_other = other.remove_front()
+    #                 other.add_to_back(current_deque_other)
+    #         # either all items of other have been tried, or the front of each deque are equal
+    #         while current_deque_self is not front_deque_self:
+    #             if current_deque_self != current_deque_other:
+    #                 equal_bool = False
+    #                 break
+    #             current_deque_self = self.remove_front()
+    #             self.add_to_back(current_deque_self)
+    #         else:
+    #             pass
+
     def add_to_back(self, new_entry) -> None:  # required
-        new_node = LinkedDeque.DLNode(data_portion=new_entry)
-        if self.back is None:
-            self.back = new_node
-            self.front = self.back
-        else:
-            new_node.set_previous_node(self.back)
-            self.back.set_next_node(new_node)
-            self.back = new_node
+        if new_entry is not None:
+            new_node = LinkedDeque.DLNode(data_portion=new_entry)
+            if self.back is None:
+                self.back = new_node
+                self.front = self.back
+            else:
+                new_node.set_previous_node(self.back)
+                self.back.set_next_node(new_node)
+                self.back = new_node
 
     def add_to_front(self, new_entry) -> None:  # required
-        new_node = LinkedDeque.DLNode(data_portion=new_entry)
-        if self.front is None:
-            self.front = new_node
-            self.back = self.front
-        else:
-            new_node.set_next_node(self.front)
-            self.front.set_previous_node(new_node)
-            self.front = new_node
+        if new_entry is not None:
+            new_node = LinkedDeque.DLNode(data_portion=new_entry)
+            if self.front is None:
+                self.front = new_node
+                self.back = self.front
+            else:
+                new_node.set_next_node(self.front)
+                self.front.set_previous_node(new_node)
+                self.front = new_node
 
     def get_back(self) -> any:  # required
         return self.back
@@ -56,6 +92,7 @@ class LinkedDeque:
         return self.front is None and self.back is None
 
     def display(self) -> None:  # required
+        # make interactive deque display, and report stats on it
         pass
 
     class DLNode:
