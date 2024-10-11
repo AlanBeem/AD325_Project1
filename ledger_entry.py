@@ -7,17 +7,12 @@ class LedgerEntry:
         self.symbol = stock_symbol
 
     def add_purchase(self, new_purchase: StockPurchase) -> None:  # required
-        # add to the back
         if new_purchase.symbol == self.symbol:
             self._linked_deque.add_to_back(new_purchase)
 
-    def remove_purchase(self) -> StockPurchase:  # required
-        # remove from the front
-        return self._linked_deque.remove_front().get_data()
-    
-    def optimal_remove_purchase(self) -> None:
-        pass
-    
+    def remove_purchase(self) -> None:  # required
+        return self._linked_deque.remove_front()
+
     def __eq__(self, other):
         equal_bool = False
         # if isinstance(other, type(self)):  # TODO testing new syntax, here
