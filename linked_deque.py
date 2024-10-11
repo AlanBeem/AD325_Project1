@@ -2,15 +2,14 @@ class LinkedDeque:
     def __init__(self) -> None:  # required
         # self.front = None
         # self.back = None  # In Java one might use self.clear
-        self.clear()  # Works, here, no warnings, in PyCharm, I think this would result in linting for use of self.var not declared in init
+        self.clear()
 
     # def __eq__(self, other) -> bool:
     #     """ ... and puts the deques back as they were passed."""
     #     # TODO ad315 statement for this method re (multi)sets representing deques
     #     # this assumes that different orders are different deques
     #     equal_bool = False
-    #     if isinstance(other, self.__class__):  # Split this into component methods, like align
-    #                                            # aesthetically, better to change self not other
+    #     if isinstance(other, self.__class__):
     #         equal_bool = True
     #         front_deque_self = self.remove_front()
     #         self.add_to_back(front_deque_self)
@@ -80,7 +79,6 @@ class LinkedDeque:
         else:
             self.front = self.front.get_next_node()
             self.front.set_previous_node(None)
-        front_node.set_next_node(None)
         return front_node
 
     def remove_back(self) -> None:  # required
@@ -90,7 +88,6 @@ class LinkedDeque:
         else:
             self.back = self.back.get_previous_node()
             self.back.set_next_node(None)
-        back_node.set_previous_node(None)
         return back_node
 
     def clear(self) -> None:  # required
