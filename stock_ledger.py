@@ -19,12 +19,16 @@ class StockLedger:
     #             if 
     
     def buy(self, stock_symbol, shares_bought, cost_per_share) -> None:  # required
-        buy_entry = self.get_entry(stock_symbol)
-        if buy_entry is None:
+        if not self.contains(stock_symbol):
             self.ledger_entries.append(LedgerEntry(stock_symbol))
             buy_entry = self.ledger_entries[-1]
+        else:
+            buy_entry = self.get_entry(stock_symbol)
         for share in range(shares_bought):
             buy_entry.add_purchase(StockPurchase(stock_symbol, cost_per_share))
+
+    def buyOptimal(self, stock_symbol: str, shares_to_buy: int) -> None:
+        pass
 
     def sell(self, stock_symbol, shares_sold, price_per_share) -> None:  # required
         sell_entry = self.get_entry(stock_symbol)
@@ -33,6 +37,9 @@ class StockLedger:
         else:
             for share in range(shares_sold):
                 sell_entry.remove_purchase()
+    
+    def sellOptimal(self, stock_symbol: str, shares_to_sell: int) -> None:
+        pass
 
     def display_ledger(self) -> None:  # required
         print("----  Stock Ledger  ----")
@@ -50,3 +57,9 @@ class StockLedger:
             if each_entry.symbol == stock_symbol:
                 return each_entry
         return None
+    
+    def number_of_shares(self, stock_symbol: str) -> None|int:
+        num_shares = 0
+        if self.contains(stock_symbol):
+            num_shares = len(self.get_entry(stock_symbol))
+        return num_shares  # same behavior for stock symbols not found in ledger, and those of empty ledger entries

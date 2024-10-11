@@ -6,6 +6,9 @@ class LedgerEntry:
         self._linked_deque = LinkedDeque()
         self.symbol = stock_symbol
 
+    def __len__(self) -> int:
+        return len(self._linked_deque)
+
     def add_purchase(self, new_purchase: StockPurchase) -> None:  # required
         # add to the back
         if new_purchase.symbol == self.symbol:
@@ -13,14 +16,13 @@ class LedgerEntry:
 
     def remove_purchase(self) -> StockPurchase:  # required
         # remove from the front
-        return self._linked_deque.remove_front().get_data()
+        return self._linked_deque.remove_front().get_data()  # DLNode is designed as a private inner class of LedgerEntry, so it doesn't return DLNode objects, instead it returns their data portion
     
-    def optimal_remove_purchase(self) -> None:
-        pass
+    # def optimal_remove_purchase(self) -> None:
+    #     pass  # TODO Remove commented out method, the optimal buy and sell go in stock_ledger StockLedger
     
     def __eq__(self, other):
         equal_bool = False
-        # if isinstance(other, type(self)):  # TODO testing new syntax, here
         if isinstance(other, self.__class__):
             if self._linked_deque == other._linked_deque:
                 equal_bool = True
@@ -44,7 +46,7 @@ class LedgerEntry:
             self._linked_deque.add_to_back(front_ledger_item)
             price_list.append(front_ledger_item.get_data().cost)
             quantity_list.append(1)
-            # price_quantity_dict.update({front_ledger_item.cost: 1})
+            # price_quantity_dict.update({front_ledger_item.cost: 1})  # Alternative, but see below regarding caution about using an object that requires a hashable key
             current_ledger_item = self._linked_deque.remove_front()
             self._linked_deque.add_to_back(current_ledger_item)
             while current_ledger_item is not front_ledger_item:
