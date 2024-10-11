@@ -9,6 +9,15 @@ class StockLedger:
     def __len__(self):
         return len(self.ledger_entries)
     
+    def __getitem__(self, index) -> LedgerEntry:
+        return self.ledger_entries[index]
+    
+    # def __eq__(self, other) -> bool:
+    #     eq_bool = False
+    #     if len(self) == len(other):
+    #         for each_entry in self:
+    #             if 
+    
     def buy(self, stock_symbol, shares_bought, cost_per_share) -> None:  # required
         buy_entry = self.get_entry(stock_symbol)
         if buy_entry is None:
