@@ -40,7 +40,10 @@ class LinkedDeque:
 
     def add_to_back(self, new_entry) -> None:  # required
         if new_entry is not None:
-            new_node = LinkedDeque.DLNode(data_portion=new_entry)
+            if not isinstance(new_entry, LinkedDeque.DLNode):
+                new_node = LinkedDeque.DLNode(data_portion=new_entry)
+            else:
+                new_node = new_entry
             if self.back is None:
                 self.back = new_node
                 self.front = self.back
@@ -51,7 +54,10 @@ class LinkedDeque:
 
     def add_to_front(self, new_entry) -> None:  # required
         if new_entry is not None:
-            new_node = LinkedDeque.DLNode(data_portion=new_entry)
+            if not isinstance(new_entry, LinkedDeque.DLNode):
+                new_node = LinkedDeque.DLNode(data_portion=new_entry)
+            else:
+                new_node = new_entry
             if self.front is None:
                 self.front = new_node
                 self.back = self.front
