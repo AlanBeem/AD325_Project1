@@ -29,7 +29,7 @@ class LedgerEntry:
         return equals_bool
 
     def display_entry(self) -> None:  # required
-        if len(self._linked_deque) == 0:
+        if self._linked_deque.is_empty():
             print(f"{self.symbol}: None")
         else:
             price_list = []
@@ -37,17 +37,17 @@ class LedgerEntry:
             # price_quantity_dict = dict()
             front_ledger_item = self._linked_deque.remove_front()
             self._linked_deque.add_to_back(front_ledger_item)
-            price_list.append(front_ledger_item.cost)
+            price_list.append(front_ledger_item.get_data().cost)
             quantity_list.append(1)
             # price_quantity_dict.update({front_ledger_item.cost: 1})
             current_ledger_item = self._linked_deque.remove_front()
             self._linked_deque.add_to_back(current_ledger_item)
             while current_ledger_item is not front_ledger_item:
-                if current_ledger_item.cost not in price_list:
-                    price_list.append(current_ledger_item.cost)
+                if current_ledger_item.get_data().cost not in price_list:
+                    price_list.append(current_ledger_item.get_data().cost)
                     quantity_list.append(1)
                 else:
-                    quantity_list[price_list.index(current_ledger_item.cost)] += 1
+                    quantity_list[price_list.index(current_ledger_item.get_data().cost)] += 1
                 current_ledger_item = self._linked_deque.remove_front()
                 self._linked_deque.add_to_back(current_ledger_item)
                 # if current_ledger_item.cost not in price_quantity_dict:
@@ -57,5 +57,6 @@ class LedgerEntry:
                 # But, the dictionary might not be in order. Seems as of Python 3.7 they are ordered: https://www.w3schools.com/python/python_dictionaries.asp#:~:text=Ordered%20or%20Unordered%3F,that%20order%20will%20not%20change.
             ledger_string = ''
             for each_price, each_quantity in zip(price_list, quantity_list):
-                ledger_string += f"{each_price:.1f} ({each_quantity} shares)"
+                # ledger_string += str(f" {each_price:.1f} ({each_quantity} shares)")
+                ledger_string += str(each_price) + " (" + str(each_quantity) + " shares)   "
             print(self.symbol + ': ' + ledger_string)
