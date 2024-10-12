@@ -6,32 +6,28 @@ class LedgerEntry:
         self._linked_deque = LinkedDeque()
         self.symbol = stock_symbol
 
+    def __len__(self) -> int:
+        return len(self._linked_deque)
+
     def add_purchase(self, new_purchase: StockPurchase) -> None:  # required
         # add to the back
         if new_purchase.symbol == self.symbol:
-            self._linked_deque.add_to_back(new_purchase)
+            self._linked_deque.add_to_back(new_purchase)  # TODO diagram out how changing this to add to front, remove from back, would effect other methods (use diagram of dependency)
 
     def remove_purchase(self) -> StockPurchase:  # required
         # remove from the front
-        return self._linked_deque.remove_front().get_data()
+        return self._linked_deque.remove_front().get_data()  # DLNode is designed as a private inner class of LedgerEntry, so this doesn't return DLNode objects, instead it returns their data portion
+        # TODO find and replace all _data with _data_portion (maybe do in textedit)
+        # make a branch for it? don't screenshot it though ? or do. I dunno.
     
-    def optimal_remove_purchase(self) -> None:
-        pass
-    
-    def __eq__(self, other):
-        equal_bool = False
-        # if isinstance(other, type(self)):  # TODO testing new syntax, here
+    def __eq__(self, other):  # O(N) = O(N) + O(N) + ... + O(N)
+        equal_bool = False    # where N is the lesser of the deques sizes
         if isinstance(other, self.__class__):
-            if self._linked_deque == other._linked_deque:
-                equal_bool = True
+            equal_bool = self._linked_deque == other._linked_deque
         return equal_bool
     
     def equals(self, other) -> bool:  # required
-        equals_bool = False
-        # if isinstance(other, type(self)):  # TODO testing new syntax, here
-        if isinstance(other, self.__class__):
-            equals_bool = self.symbol == other.symbol
-        return equals_bool
+        return self == other  # O(N)
 
     def display_entry(self) -> None:  # required
         if self._linked_deque.is_empty():
@@ -44,7 +40,7 @@ class LedgerEntry:
             self._linked_deque.add_to_back(front_ledger_item)
             price_list.append(front_ledger_item.get_data().cost)
             quantity_list.append(1)
-            # price_quantity_dict.update({front_ledger_item.cost: 1})
+            # price_quantity_dict.update({front_ledger_item.cost: 1})  # Alternative, but see below regarding caution about using an object that requires a hashable key
             current_ledger_item = self._linked_deque.remove_front()
             self._linked_deque.add_to_back(current_ledger_item)
             while current_ledger_item is not front_ledger_item:

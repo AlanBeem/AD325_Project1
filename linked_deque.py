@@ -1,16 +1,37 @@
-class LinkedDeque:
-    def __init__(self) -> None:  # required
-        # self.front = None
-        # self.back = None  # In Java one might use self.clear
-        self.clear()  # Works, here, no warnings, in PyCharm, I think this would result in linting for use of self.var not declared in init
+from collections.abc import Iterable
 
-    # def __eq__(self, other) -> bool:
-    #     """ ... and puts the deques back as they were passed."""
-    #     # TODO ad315 statement for this method re (multi)sets representing deques
-    #     # this assumes that different orders are different deques
+
+class LinkedDeque:
+    def __init__(self, initial_data: Iterable|None =None, front_or_back: str ='Front') -> None:  # required
+        # self.front = None
+        # self.back = None  # In Java one might use self.clear [this centralizes methods to decrease size of testing path]
+        self.clear()  # Works, here, no warnings, in PyCharm, I think this would result in linting for use of self.var not declared in init
+        if initial_data is not None:
+            if front_or_back.lower() == 'front':
+                for each_datum in initial_data:
+                    self.add_to_front(each_datum)
+            elif front_or_back.lower() == 'back':
+                for each_datum in initial_data:
+                    self.add_to_front(each_datum)
+
+    def __len__(self) -> int:  # O(N)
+        got_length = 0
+        current_len_node = self.front  # front (1 node visited)
+        while current_len_node is not None:  # unless front is None
+            got_length += 1
+            current_len_node = current_len_node.get_next_node()
+        return got_length
+
+    def __eq__(self, other) -> bool:  # O(N) = O(N) + O(N) + ... + O(N)
+        # Calling this method results in a cascade of __eq__ methods from LinkedDeque through DLNode, including data_portion
+        """This assumes that differently ordered deques (of otherwise identical items) are different deques,
+        that is, deques are considered (circular) sequences, not (multi)sets.
+        and puts self back as was before equals operation."""
+        # ... and puts the deques back as they were passed."""
+        pass
     #     equal_bool = False
     #     if isinstance(other, self.__class__):  # Split this into component methods, like align
-    #                                            # aesthetically, better to change self not other
+    #                                            # aesthetically, better to change self not other (even though it's put back as it was)
     #         equal_bool = True
     #         front_deque_self = self.remove_front()
     #         self.add_to_back(front_deque_self)
@@ -40,7 +61,7 @@ class LinkedDeque:
     #             pass
 
     def add_to_back(self, new_entry) -> None:  # required
-        if new_entry is not None:
+        if new_entry is not None:  # These handle null entries so that methods in client classes can send null entries w/o adding DLNode(data_portion=None)
             if not isinstance(new_entry, LinkedDeque.DLNode):
                 new_node = LinkedDeque.DLNode(data_portion=new_entry)
             else:
@@ -54,7 +75,8 @@ class LinkedDeque:
                 self.back = new_node
 
     def add_to_front(self, new_entry) -> None:  # required
-        if new_entry is not None:
+        if new_entry is not None:  # These handle null entries so that methods in client classes can send null entries w/o adding DLNode(data_portion=None)
+            # TODO Take this out, and solve client-side to this, it doesn't make sense to prevent client code from being able to add a null node
             if not isinstance(new_entry, LinkedDeque.DLNode):
                 new_node = LinkedDeque.DLNode(data_portion=new_entry)
             else:
@@ -71,7 +93,7 @@ class LinkedDeque:
         return self.back
 
     def get_front(self) -> any:  # required
-        return self.front
+        return self.front  # TODO make this return data rather than DLNode
 
     def remove_front(self) -> None:  # required
         front_node = self.get_front()
@@ -80,7 +102,7 @@ class LinkedDeque:
         else:
             self.front = self.front.get_next_node()
             self.front.set_previous_node(None)
-        front_node.set_next_node(None)
+        front_node.set_next_node(None)  # Bug fix 10/11/2024
         return front_node
 
     def remove_back(self) -> None:  # required
@@ -90,7 +112,7 @@ class LinkedDeque:
         else:
             self.back = self.back.get_previous_node()
             self.back.set_next_node(None)
-        back_node.set_previous_node(None)
+        back_node.set_previous_node(None)  # Bug fix 10/11/2024
         return back_node
 
     def clear(self) -> None:  # required
@@ -101,7 +123,7 @@ class LinkedDeque:
         return self.front is None and self.back is None
 
     def display(self) -> None:  # required
-        # make interactive deque display, and report stats on it
+        # make interactive deque display, and report stats on it  # Ask
         pass
 
     class DLNode:
