@@ -1,30 +1,34 @@
+from collections.abc import Iterable
+
+
 class LinkedDeque:
-    def __init__(self) -> None:  # required
+    def __init__(self, initial_data: Iterable|None =None, front_or_back: str ='Front') -> None:  # required
         # self.front = None
         # self.back = None  # In Java one might use self.clear [this centralizes methods to decrease size of testing path]
         self.clear()  # Works, here, no warnings, in PyCharm, I think this would result in linting for use of self.var not declared in init
+        if initial_data is not None:
+            if front_or_back.lower() == 'front':
+                for each_datum in initial_data:
+                    self.add_to_front(each_datum)
+            elif front_or_back.lower() == 'back':
+                for each_datum in initial_data:
+                    self.add_to_front(each_datum)
 
-    def __len__(self) -> int:
+    def __len__(self) -> int:  # O(N)
         got_length = 0
-        # if self.front is not None:  # else len == 0
         current_len_node = self.front  # front (1 node visited)
-        # got_length += 1
-            # if self.front is not self.back:  # else len == 1
-            #     current_len_node = current_len_node.get_next_node()  # front.next (2 nodes visited)
-            #     got_length += 1
-            #     # fencepost following while loop  # TODO delete these comments-- try to think towards precisely engineering stuff, rather than overengineering
-        while current_len_node is not None:
+        while current_len_node is not None:  # unless front is None
             got_length += 1
             current_len_node = current_len_node.get_next_node()
         return got_length
 
-    def __eq__(self, other) -> bool:
-        # Calling this method results in a cascade of __eq__ methods from LinkedDeque through DLNode, and from data_portion
+    def __eq__(self, other) -> bool:  # O(N) = O(N) + O(N) + ... + O(N)
+        # Calling this method results in a cascade of __eq__ methods from LinkedDeque through DLNode, including data_portion
         """This assumes that differently ordered deques (of otherwise identical items) are different deques,
         that is, deques are considered (circular) sequences, not (multi)sets.
-        ... and puts the deques back as they were passed."""
+        and puts self back as was before equals operation."""
+        # ... and puts the deques back as they were passed."""
         pass
-    #     # TODO ad315 statement for this method re (multi)sets representing deques
     #     equal_bool = False
     #     if isinstance(other, self.__class__):  # Split this into component methods, like align
     #                                            # aesthetically, better to change self not other (even though it's put back as it was)
@@ -89,7 +93,7 @@ class LinkedDeque:
         return self.back
 
     def get_front(self) -> any:  # required
-        return self.front
+        return self.front  # TODO make this return data rather than DLNode
 
     def remove_front(self) -> None:  # required
         front_node = self.get_front()
@@ -119,7 +123,7 @@ class LinkedDeque:
         return self.front is None and self.back is None
 
     def display(self) -> None:  # required
-        # make interactive deque display, and report stats on it
+        # make interactive deque display, and report stats on it  # Ask
         pass
 
     class DLNode:

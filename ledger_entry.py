@@ -12,28 +12,22 @@ class LedgerEntry:
     def add_purchase(self, new_purchase: StockPurchase) -> None:  # required
         # add to the back
         if new_purchase.symbol == self.symbol:
-            self._linked_deque.add_to_back(new_purchase)
+            self._linked_deque.add_to_back(new_purchase)  # TODO diagram out how changing this to add to front, remove from back, would effect other methods (use diagram of dependency)
 
     def remove_purchase(self) -> StockPurchase:  # required
         # remove from the front
-        return self._linked_deque.remove_front().get_data()  # DLNode is designed as a private inner class of LedgerEntry, so it doesn't return DLNode objects, instead it returns their data portion
+        return self._linked_deque.remove_front().get_data()  # DLNode is designed as a private inner class of LedgerEntry, so this doesn't return DLNode objects, instead it returns their data portion
+        # TODO find and replace all _data with _data_portion (maybe do in textedit)
+        # make a branch for it? don't screenshot it though ? or do. I dunno.
     
-    # def optimal_remove_purchase(self) -> None:
-    #     pass  # TODO Remove commented out method, the optimal buy and sell go in stock_ledger StockLedger
-    
-    def __eq__(self, other):
-        equal_bool = False
+    def __eq__(self, other):  # O(N) = O(N) + O(N) + ... + O(N)
+        equal_bool = False    # where N is the lesser of the deques sizes
         if isinstance(other, self.__class__):
-            if self._linked_deque == other._linked_deque:
-                equal_bool = True
+            equal_bool = self._linked_deque == other._linked_deque
         return equal_bool
     
     def equals(self, other) -> bool:  # required
-        equals_bool = False
-        # if isinstance(other, type(self)):  # TODO testing new syntax, here
-        if isinstance(other, self.__class__):
-            equals_bool = self.symbol == other.symbol
-        return equals_bool
+        return self == other  # O(N)
 
     def display_entry(self) -> None:  # required
         if self._linked_deque.is_empty():

@@ -32,11 +32,13 @@ class StockLedger:
 
     def sell(self, stock_symbol, shares_sold, price_per_share) -> None:  # required
         sell_entry = self.get_entry(stock_symbol)
+        stock_purchase = None
         if sell_entry is None:
             print("sell_entry is None: stock symbol not found")
         else:
             for share in range(shares_sold):
-                sell_entry.remove_purchase()
+                stock_purchase = sell_entry.remove_purchase()
+        return stock_purchase
     
     def sellOptimal(self, stock_symbol: str, shares_to_sell: int) -> None:
         pass
