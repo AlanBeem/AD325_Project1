@@ -1,7 +1,5 @@
 from stock_ledger import StockLedger
-from stock_sale import StockSale
 from trading_bot import TradingBot
-from sell_strategy import SellFunction
 from random import SystemRandom
 
 
@@ -26,20 +24,58 @@ def interpret_string_as_ledger(input_str: str) -> StockLedger:  # O(N)
     return display_interpret_string_as_ledger(input_str)
 
 
-def string_to_trading_bot(input_str: str, trading_bot: TradingBot, sell_function: SellFunction =SellFunction) -> None:  # O(1) or O(f(N))
-    input_lines = input_str.split('\n')  #                       # O(f(N))                     # O(N)
+def string_to_trading_bot(input_str: str, trading_bot: TradingBot) -> tuple[list[int], list[float]]:  # O(1) or O(f(N))
+    input_lines = input_str.split('\n')  #                       # O(f(N))
     plot_x = []
     plot_y = []
     for each_line in input_lines:  # O(N=len(input_lines))
-        plot_x.append(len(plot_x))  # on list, O(1)
-        plot_y.append(trading_bot.report_profit())
+        # plot_x.append(len(plot_x))  # on list, O(1)
+        # plot_y.append(trading_bot.report_profit())
         each_split_line = each_line.split()  # splits on spaces
         if each_line.count('Display') == 0:
             price_string = each_split_line[-1].strip('.$')
         if each_split_line[0] == 'Buy':
             trading_bot.buy(each_split_line[4], int(each_split_line[1]), float(price_string))
         elif each_split_line[0] == 'Sell':
-            trading_bot.sell(each_split_line[4], int(each_split_line[1]), float(price_string), sell_function.sf)  # O(f(N))
+            trading_bot.sell(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(1) * O(num shares)
+            plot_x.append(len(plot_x))  # O(N=len(list))  # track sales
+            plot_y.append(trading_bot.report_last_profit())
+    return plot_x, plot_y
+
+def string_to_random_trading_bot(input_str: str, trading_bot: TradingBot) -> tuple[list[int], list[float]]:  # O(N) (more shares, more deque movement as f(N))
+    input_lines = input_str.split('\n')  #                       # O(f(N))
+    plot_x = []
+    plot_y = []
+    for each_line in input_lines:  # O(N=len(input_lines))
+        # plot_x.append(len(plot_x))  # O(N=len(list))
+        # plot_y.append(trading_bot.report_profit())
+        each_split_line = each_line.split()  # splits on spaces
+        if each_line.count('Display') == 0:
+            price_string = each_split_line[-1].strip('.$')
+        if each_split_line[0] == 'Buy':
+            trading_bot.buy(each_split_line[4], int(each_split_line[1]), float(price_string))
+        elif each_split_line[0] == 'Sell':
+            trading_bot.sellRandom(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(1) * O(num shares)
+            plot_x.append(len(plot_x))  # O(N=len(list))  # track sales
+            plot_y.append(trading_bot.report_last_profit())
+    return plot_x, plot_y
+
+def string_to_optimal_trading_bot(input_str: str, trading_bot: TradingBot) -> tuple[list[int], list[float]]:
+    input_lines = input_str.split('\n')  #                       # O(f(N))
+    plot_x = []
+    plot_y = []
+    for each_line in input_lines:  # O(N=len(input_lines))
+        # plot_x.append(len(plot_x))  # on list, O(1)
+        # plot_y.append(trading_bot.report_profit())
+        each_split_line = each_line.split()  # splits on spaces
+        if each_line.count('Display') == 0:
+            price_string = each_split_line[-1].strip('.$')
+        if each_split_line[0] == 'Buy':
+            trading_bot.buy(each_split_line[4], int(each_split_line[1]), float(price_string))
+        elif each_split_line[0] == 'Sell':
+            trading_bot.sellOptimal(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(f(N))
+            plot_x.append(len(plot_x))  # O(N=len(list))  # track sales
+            plot_y.append(trading_bot.report_last_profit())
     return plot_x, plot_y
 
 
