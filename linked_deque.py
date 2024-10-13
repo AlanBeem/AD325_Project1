@@ -122,6 +122,12 @@ class LinkedDeque:
     def is_empty(self) -> bool:  # required
         return self.front is None and self.back is None
 
+    def front_to_back(self) -> None:
+        self.add_to_back(self.remove_front())
+
+    def back_to_front(self) -> None:
+        self.add_to_front(self.remove_back())
+
     def display(self) -> None:  # required
         # make interactive deque display, and report stats on it  # Ask
         pass
