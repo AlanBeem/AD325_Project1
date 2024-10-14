@@ -60,7 +60,7 @@ def string_to_random_trading_bot(input_str: str, trading_bot: TradingBot) -> tup
             plot_y.append(trading_bot.report_last_profit())
     return plot_x, plot_y
 
-def string_to_optimal_trading_bot(input_str: str, trading_bot: TradingBot) -> tuple[list[int], list[float]]:
+def string_to_optimal_trading_bot(input_str: str, trading_bot: TradingBot, optimal_selection_int: int) -> tuple[list[int], list[float]]:
     input_lines = input_str.split('\n')  #                       # O(f(N))
     plot_x = []
     plot_y = []
@@ -73,7 +73,7 @@ def string_to_optimal_trading_bot(input_str: str, trading_bot: TradingBot) -> tu
         if each_split_line[0] == 'Buy':
             trading_bot.buy(each_split_line[4], int(each_split_line[1]), float(price_string))
         elif each_split_line[0] == 'Sell':
-            trading_bot.sellOptimal(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(f(N))
+            trading_bot.sellOptimal(each_split_line[4], int(each_split_line[1]), float(price_string), optimal_selection_int)  # O(f(N))
             plot_x.append(len(plot_x))  # O(N=len(list))  # track sales
             plot_y.append(trading_bot.report_last_profit())
     return plot_x, plot_y

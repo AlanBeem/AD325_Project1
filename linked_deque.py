@@ -90,30 +90,31 @@ class LinkedDeque:
                 self.front = new_node
 
     def get_back(self) -> any:  # required
-        return self.back
+        return self.back.get_data()
 
     def get_front(self) -> any:  # required
-        return self.front  # TODO make this return data rather than DLNode
+        if self.front is not None:
+            return self.front.get_data()  # TODO make this return data rather than DLNode
 
     def remove_front(self) -> None:  # required
-        front_node = self.get_front()
+        front_node = self.front
         if self.front.get_next_node() is None:
             self.clear()
         else:
             self.front = self.front.get_next_node()
             self.front.set_previous_node(None)
-        front_node.set_next_node(None)  # Bug fix 10/11/2024
-        return front_node
+            front_node.set_next_node(None)  # Bug fix 10/11/2024  # tabbed in 10/13/2024
+        return front_node.get_data()
 
     def remove_back(self) -> None:  # required
-        back_node = self.get_back()
+        back_node = self.back
         if self.back.get_previous_node() is None:
             self.clear()
         else:
             self.back = self.back.get_previous_node()
             self.back.set_next_node(None)
-        back_node.set_previous_node(None)  # Bug fix 10/11/2024
-        return back_node
+            back_node.set_previous_node(None)  # Bug fix 10/11/2024  # tabbed in 10/13/2024
+        return back_node.get_data()
 
     def clear(self) -> None:  # required
         self.front = None
