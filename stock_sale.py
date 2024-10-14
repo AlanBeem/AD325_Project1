@@ -2,12 +2,12 @@ from stock_purchase import StockPurchase
 
 
 class StockSale:
-    def __init__(self, stock_symbol: str, quantity: int, sale_price: float|None=None, shares_sold: list[StockPurchase] =[]) -> None:
+    def __init__(self, stock_symbol: str, quantity: int) -> None:
         self.symbol = stock_symbol
-        self.shares = shares_sold
-        self.price = sale_price
         self.quantity = quantity
-
+        self.price = None
+        self.shares = []
+        
     def __len__(self):
         return len(self.shares)
     
@@ -15,8 +15,9 @@ class StockSale:
         out_string_list = [f"---- Stock Sale: {self.symbol} ----"]
         out_string_list.append('Cost        Price')
         for each_share in self.shares:
-            out_string_list.append(f"{each_share.cost}        {self.price}")
+            out_string_list.append(f"${each_share.cost}         ${self.price}")
         out_string_list.append('- - - - - Total - - - - -')
+        out_string_list.append('$' + str(self.get_profit()))
         return '\n'.join(out_string_list)
 
     def add_sale(self, stock: StockPurchase) -> None:
@@ -33,3 +34,8 @@ class StockSale:
             print(f"self.price == {self.price}")
             raise RuntimeError
         return self.quantity * self.price - self.total_cost()
+    
+    def is_filled(self) -> bool:
+        return self.quantity == len(self)
+    
+    
