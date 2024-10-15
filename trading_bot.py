@@ -39,8 +39,20 @@ class TradingBot:  # TradingFirm ?
         self.balance += quantity * price
         self.profit_per_sell.append(self.report_last_profit())
 
-    def report_profit(self):
+    def report_profit(self) -> float:
         return sum([stock_sale.get_profit() for stock_sale in self.stock_sales_list])
+    
+    def report_accumulated_profit(self) -> list[float]:
+        accumulated_profits = [0]
+        while len(accumulated_profits) < len(self.profit_per_sell):
+            current_accumulation = 0
+            for ap_i in range(len(accumulated_profits)):
+                current_accumulation += self.profit_per_sell[ap_i]
+            accumulated_profits.append(current_accumulation)
+        return accumulated_profits
+    
+    def report_revenue(self) -> float:
+        return sum([each_sale.quantity * len(each_sale.shares) for each_sale in self.stock_sales_list])
     
     def report_last_profit(self):
         if len(self.stock_sales_list) > 0:
