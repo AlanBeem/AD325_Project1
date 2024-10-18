@@ -2,10 +2,10 @@ from stock_purchase import StockPurchase
 
 
 class StockSale:
-    def __init__(self, stock_symbol: str, quantity: int) -> None:
+    def __init__(self, stock_symbol: str, quantity: int, price: float) -> None:
         self.symbol = stock_symbol
         self.quantity = quantity
-        self.price = None
+        self.price = price
         self.shares = []
         
     def __len__(self):
@@ -30,9 +30,9 @@ class StockSale:
         return total
 
     def get_profit(self):
-        if self.price is None:
-            print(f"self.price == {self.price}")
-            raise RuntimeError
+        if self.price is None:                   #
+            print(f"self.price == {self.price}") #
+            raise RuntimeError                   # no longer needed
         return self.quantity * self.price - self.total_cost()
     
     def is_filled(self) -> bool:

@@ -70,8 +70,8 @@ class StockLedger:
         #         buy_entry.increment_entry()
         #     buy_entry.add_purchase(StockPurchase(stock_symbol, cost_per_share))
 
-    def sell(self, stock_symbol: str, quantity: int) -> StockSale:  # ~required  # O(N)
-        sale = StockSale(stock_symbol, quantity)
+    def sell(self, stock_symbol: str, quantity: int, price: float) -> StockSale:  # ~required  # O(N)
+        sale = StockSale(stock_symbol, quantity, price)
         sell_entry = self.get_entry(stock_symbol)  # O(N)
         if sell_entry is None:
             print(f"Stock symbol not found for {quantity} shares of {stock_symbol}")  # maybe instead of these, have client side code making sense of returned values including some error code
@@ -84,8 +84,8 @@ class StockLedger:
                 sale.add_sale(sell_entry.remove_purchase())  # O(1)
         return sale
 
-    def sellRandom(self, stock_symbol: str, quantity: int) -> StockSale:  # O(N)
-        sale = StockSale(stock_symbol, quantity)
+    def sellRandom(self, stock_symbol: str, quantity: int, price: float) -> StockSale:  # O(N)
+        sale = StockSale(stock_symbol, quantity, price)
         sell_entry = self.get_entry(sale.symbol)  # O(N)
         sell_entry_length = len(sell_entry)  # O(N)
         if sell_entry is None:
@@ -100,54 +100,51 @@ class StockLedger:
                 sale.add_sale(sell_entry.remove_purchase())  # removes from front  # O(1)
         return sale
 
-    def sellOptimal(self, stock_symbol: str, quantity, optimal_selection_int: int=1, expression=None) -> None:  # O(f(optimal selection_int))
+    def sellOptimal(self, stock_symbol: str, quantity: int, price: float, optimal_selection_int: int=1) -> None:  # O(f(optimal selection_int))
         """optimal_selection_int\n\n1: Sell lowest priced share first"""
-        if expression is not None:
-            pass
+        sale = StockSale(stock_symbol, quantity, price)  # Alternatively keep StockSale to whatever has StockLedger, and return a list or tuple of StockPurchases
+        sell_entry = self.get_entry(stock_symbol)  # O(len(self.ledger_entries))
+        sell_entry_length = self.number_of_shares(stock_symbol)  # O(N)
+        if sell_entry is None:
+            print(f"Stock symbol not found for {quantity} shares of {stock_symbol}")  # maybe instead of these, have client side code making sense of returned values including some error code
+        elif quantity > sell_entry_length:  # O(1)
+            print(f"Cannot fill quantity of sale: {quantity} shares of {stock_symbol}. len(sell_entry) == {len(sell_entry)}")
         else:
-            sale = StockSale(stock_symbol, quantity)  # Alternatively keep StockSale to whatever has StockLedger, and return a list or tuple of StockPurchases
-            sell_entry = self.get_entry(stock_symbol)  # O(len(self.ledger_entries))
-            sell_entry_length = self.number_of_shares(stock_symbol)  # O(N)
-            if sell_entry is None:
-                print(f"Stock symbol not found for {quantity} shares of {stock_symbol}")  # maybe instead of these, have client side code making sense of returned values including some error code
-            elif quantity > sell_entry_length:  # O(1)
-                print(f"Cannot fill quantity of sale: {quantity} shares of {stock_symbol}. len(sell_entry) == {len(sell_entry)}")
-            else:
-                # assertion: quantity is less than or equal to number of shares
-                if optimal_selection_int == 1:  # fill with lowest cost shares  # O()
-                    while not sale.is_filled():  # O(N) = O(N) * quantity  # fill the sale
-                        if sale.quantity - len(sale) == self.number_of_shares(stock_symbol):
-                            for s_i in range(self.number_of_shares(stock_symbol)):
-                                sale.add_sale(sell_entry.remove_purchase())
-                        else:
-                            lowest_cost_share = sell_entry._linked_deque.get_front()  # O(1), gets a StockPurchase, in this case
-                            index_from_front = 0
-                            entry_length = len(sell_entry)
-                            # locate a lowest cost share
-                            for so_i in range(entry_length):  # O(len(sell_entry)) setup, O(N)
-                                sell_entry.increment_entry()                                    ##
-                                if sell_entry._linked_deque.get_front() < lowest_cost_share:    ##
-                                    lowest_cost_share = sell_entry._linked_deque.get_front()    #    switching the order of these causes indefinite while loop
-                                    index_from_front = so_i                                     #
-                            # position the Deque according to index_from_front  # TODO replace with 'lambda_position' ? or fill_below ?
-                            if index_from_front + 1 <= len(sell_entry) - index_from_front - 1:
-                                for so_j in range(index_from_front + 1):  # O(N) = O(N/2) = O(index_from_front)
-                                    sell_entry.increment_entry()
-                            else:
-                                for so_k in range(len(sell_entry) - index_from_front - 1):  # O(N) = O(N/2)
-                                    sell_entry._linked_deque.back_to_front()
-                            while not sale.is_filled() and sell_entry._linked_deque.get_front().cost == lowest_cost_share.cost:
-                                sale.add_sale(sell_entry.remove_purchase())
-                if optimal_selection_int == 2:  # O()
-                    while not sale.is_filled():  # see assertion above, number of shares >= quantity: this loop will not run indefinitely
-                        current_median, current_length = self.get_ledger_entry_median_data(stock_symbol)  # tuple(float, int)  # O(len(sell_entry))
-                        for t_j in range(current_length):  # must visit up to each data_portion (per while iteration)
-                            if sale.is_filled():
-                                break
-                            if sell_entry.peek().cost <= current_median:
-                                sale.add_sale(sell_entry.remove_purchase())
-                            else:
+            # assertion: quantity is less than or equal to number of shares
+            if optimal_selection_int == 1:  # fill with lowest cost shares  # O()
+                while not sale.is_filled():  # O(N) = O(N) * quantity  # fill the sale
+                    if sale.quantity - len(sale) == self.number_of_shares(stock_symbol):
+                        for s_i in range(self.number_of_shares(stock_symbol)):
+                            sale.add_sale(sell_entry.remove_purchase())
+                    else:
+                        lowest_cost_share = sell_entry._linked_deque.get_front()  # O(1), gets a StockPurchase, in this case
+                        index_from_front = 0
+                        entry_length = len(sell_entry)
+                        # locate a lowest cost share
+                        for so_i in range(entry_length):  # O(len(sell_entry)) setup, O(N)
+                            sell_entry.increment_entry()                                    ##
+                            if sell_entry._linked_deque.get_front() < lowest_cost_share:    ##
+                                lowest_cost_share = sell_entry._linked_deque.get_front()    #    switching the order of these causes indefinite while loop
+                                index_from_front = so_i                                     #
+                        # position the Deque according to index_from_front  # TODO replace with 'lambda_position' ? or fill_below ?
+                        if index_from_front + 1 <= len(sell_entry) - index_from_front - 1:
+                            for so_j in range(index_from_front + 1):  # O(N) = O(N/2) = O(index_from_front)
                                 sell_entry.increment_entry()
+                        else:
+                            for so_k in range(len(sell_entry) - index_from_front - 1):  # O(N) = O(N/2)
+                                sell_entry._linked_deque.back_to_front()
+                        while not sale.is_filled() and sell_entry._linked_deque.get_front().cost == lowest_cost_share.cost:
+                            sale.add_sale(sell_entry.remove_purchase())
+            if optimal_selection_int == 2:  # O()
+                while not sale.is_filled():  # see assertion above, number of shares >= quantity: this loop will not run indefinitely
+                    current_median, current_length = self.get_ledger_entry_median_data(stock_symbol)  # tuple(float, int)  # O(len(sell_entry))
+                    for t_j in range(current_length):  # must visit up to each data_portion (per while iteration)
+                        if sale.is_filled():
+                            break
+                        if sell_entry.peek().cost <= current_median:
+                            sale.add_sale(sell_entry.remove_purchase())
+                        else:
+                            sell_entry.increment_entry()
         return sale
 
     def display_ledger(self) -> None:  # required
@@ -176,7 +173,7 @@ class StockLedger:
             num_shares = len(self.get_entry(stock_symbol))
         return num_shares  # same behavior for stock symbols not found in ledger and those of empty ledger entries
     
-    # TODO Move to LinkedDeque
+    # TODO Make this work like codestepbystep exercise for median in a stack
     def get_ledger_entry_median_data(self, stock_symbol: str) -> tuple[float, int]:  # O(N)
         ledger_entry = self.get_entry(stock_symbol)
         ledger_length = len(ledger_entry)  # O(N)

@@ -13,75 +13,80 @@ class TradingBot:  # TradingFirm ?
         self.profit_per_sell = []
         self.buy_setting = buy_setting
         self.sell_setting = sell_setting
+        #
         self.sell_times = []
         self.buy_times = []
+        self.per_share_sell_times = dict()
+        self.per_share_buy_times = dict()
+
+    def string_to_trading_bot(self, input_str: str) -> None:  # 
+        input_lines = input_str.split('\n')
+        for each_line in input_lines:  # O(N=len(input_lines))
+            # plot_x.append(len(plot_x))  # on list, O(1)
+            # plot_y.append(trading_bot.report_profit())
+            each_split_line = each_line.split()  # splits on spaces
+            if each_line.count('Display') == 0:
+                price_string = each_split_line[-1].strip('.$')
+            if each_split_line[0] == 'Buy':
+                self.buy(each_split_line[4], int(each_split_line[1]), float(price_string))
+            elif each_split_line[0] == 'Sell':
+                self.sell(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(1) * O(num shares)
 
     def buy(self, stock_symbol: str, quantity: int, price: float) -> None:
         buy_time_start = time.time()
         if self.buy_setting == 1:
-            pass
+            self.stock_ledger.buy(stock_symbol, quantity, price)
         elif self.buy_setting == 2:
-            pass
+            self.stock_ledger.buyRandom(stock_symbol, quantity, price)
         elif self.buy_setting == 3:
-            pass
+            self.stock_ledger.buyOptimal(stock_symbol, quantity, price)
         elif self.buy_setting == 4:
             pass
-    
-    # sell:
-    # def buy(self, stock_symbol: str, quantity: int, price: float) -> None:
-    #     buy_time_start = time.time()
-    #     if self.buy_setting == 1:
-    #         pass
-    #     elif self.buy_setting == 2:
-    #         pass
-    #     elif self.buy_setting == 3:
-    #         pass
-    #     elif self.buy_setting == 4:
-    #         pass
-
-    def buy(self, stock_symbol: str, quantity: int, price: float) -> None:
-        self.stock_ledger.buy(stock_symbol, quantity, price)
+        buy_time_end = time.time()
         self.balance -= quantity * price
         self.balance_over_transactions.append(self.balance)
-    
-    def buyRandom(self, stock_symbol: str, quantity: int, price: float) -> None:
-        self.stock_ledger.buyRandom(stock_symbol, quantity, price)
-        self.balance -= quantity * price
-        self.balance_over_transactions.append(self.balance)
-    
-    def buyOptimal(self, stock_symbol: str, quantity: int, price: float) -> None:
-        self.stock_ledger.buyOptimal(stock_symbol, quantity, price)
-        self.balance -= quantity * price
-        self.balance_over_transactions.append(self.balance)    
-    
-# TODO Make all sell methods the same one, switch behavior by settings
-
-    def sell(self, stock_symbol: str, quantity: int, price: float) -> None:  # TODO add argument allowing partially filling sales (oh, then you'd need to be able to put them back, if the sale did not complete (should add them to some segments of same price) (increasing the complexity, could use a deck of mixed stock symbols)
-        # TODO have these pass in a StockSale object to be filled by the ledger (After bug is fixed, with design)
-        self.stock_sales_list.append(self.stock_ledger.sell(stock_symbol, quantity))
-        if self.stock_sales_list[-1] is None:
-            self.stock_sales_list.remove(None)
+        self.buy_times.append(buy_time_end - buy_time_start)
+        if per_share_time := self.buy_times[-1] / quantity in self.per_share_buy_times:
+            # average
+            previous_sum = self.per_share_buy_times.get(price) * (len(self.buy_times) - 1)
+            self.per_share_buy_times.update((previous_sum + per_share_time) / len(self.buy_times))
         else:
-            self.stock_sales_list[-1].price = price
-            self.balance += quantity * price
-            self.profit_per_sell.append(self.report_last_profit())
+            self.per_share_buy_times.update({price : per_share_time})
     
-    def sellRandom(self, stock_symbol: str, quantity: int, price: float) -> None:
-        self.stock_sales_list.append(self.stock_ledger.sellRandom(stock_symbol, quantity))
+    def sell(self, stock_symbol: str, quantity: int, price: float) -> None:
+        sell_time_start = time.time()
+        if self.sell_setting == 1:
+            self.stock_sales_list.append(self.stock_ledger.sell(stock_symbol, quantity, price))
+        elif self.sell_setting == 2:
+            self.stock_sales_list.append(self.stock_ledger.sellRandom(stock_symbol, quantity, price))
+        elif self.sell_setting == 3:
+            self.stock_sales_list.append(self.stock_ledger.sellOptimal(stock_symbol, quantity, price))
+        elif self.sell_setting == 4:
+            self.stock_sales_list.append(self.stock_ledger.sellOptimal(stock_symbol, quantity, price))
+        sell_time_end = time.time()
         self.stock_sales_list[-1].price = price
         self.balance += quantity * price
         self.profit_per_sell.append(self.report_last_profit())
+        self.sell_times.append(sell_time_end - sell_time_start)
+        if per_share_time := self.sell_times[-1] / quantity in self.per_shares_sell_times:
+            # average
+            previous_sum = self.per_share_sell_times.get(price) * (len(self.sell_times) - 1)
+            self.per_share_sell_times.update((previous_sum + per_share_time) / len(self.sell_times))
+        else:
+            self.per_share_sell_times.update({price : per_share_time})
     
-    def sellOptimal(self, stock_symbol: str, quantity: int, price: float, optimal_selection_int: int=1) -> None:
-        self.stock_sales_list.append(self.stock_ledger.sellOptimal(stock_symbol, quantity, optimal_selection_int))
-        self.stock_sales_list[-1].price = price
-        self.balance += quantity * price
-        self.profit_per_sell.append(self.report_last_profit())
+    # $ report methods:
 
-    def report_profit(self) -> float:
+    def profit(self) -> float:
         return sum([stock_sale.get_profit() for stock_sale in self.stock_sales_list])
     
-    def report_accumulated_profit(self) -> list[float]:
+    def last_profit(self):
+        if len(self.stock_sales_list) > 0:
+            return self.stock_sales_list[-1].get_profit()
+        else:
+            return 0
+
+    def accumulated_profit(self) -> list[float]:
         accumulated_profits = [0]
         while len(accumulated_profits) < len(self.profit_per_sell):
             current_accumulation = 0
@@ -90,44 +95,34 @@ class TradingBot:  # TradingFirm ?
             accumulated_profits.append(current_accumulation)
         return accumulated_profits
     
-    def report_revenue(self) -> float:
+    def revenue(self) -> float:
         return sum([each_sale.quantity * len(each_sale.shares) for each_sale in self.stock_sales_list])
     
-    def report_last_profit(self):
-        if len(self.stock_sales_list) > 0:
-            # return 10  # displays as 10, so it's getting to here.
-            return self.stock_sales_list[-1].get_profit()
-        else:
-            return 0
+    def last_revenue(self) -> float:
+        return self.stock_sales_list[-1].quantity * self.stock_sales_list[-1].price
+
+    # complexity report methods:
     
     def report_total_times(self) -> tuple[float, float]:  # buy time, sell time
-        return sum(self.buy_times), sum(self.sell_times)
+        return sum(self.buy_times), sum(self.sell_times)  # color-mix over strategies (Cartesian) (try with .imshow)
 
+    # could do: # class data object (for normalization) (and would add to init.)
 
-def string_to_trading_bot(input_str: str, trading_bot: TradingBot, strategy_selection_int: int=1) -> tuple[list[int], list[float]]:  # O(1) or O(f(N))
-    """strategy_selection_int:\n\n1: sell\n\n2: sellRandom\n\n3: sellOptimal() (sell lowest cost shares first)\n\n4: sellOptimal(optimal_selection_int=2) (sell below the median (per round of the deque))"""
-    input_lines = input_str.split('\n')  #                       # O(f(N))
-    plot_x = []
-    plot_y = []
-    for each_line in input_lines:  # O(N=len(input_lines))
-        # plot_x.append(len(plot_x))  # on list, O(1)
-        # plot_y.append(trading_bot.report_profit())
-        each_split_line = each_line.split()  # splits on spaces
-        if each_line.count('Display') == 0:
-            price_string = each_split_line[-1].strip('.$')
-        if each_split_line[0] == 'Buy':
-            trading_bot.buy(each_split_line[4], int(each_split_line[1]), float(price_string))
-        elif each_split_line[0] == 'Sell':
-            if strategy_selection_int == 1:
-                trading_bot.sell(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(1) * O(num shares)
-            elif strategy_selection_int == 2:
-                trading_bot.sellRandom(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(len(entry)) * O(num shares)
-            elif strategy_selection_int == 3:
-                trading_bot.sellOptimal(each_split_line[4], int(each_split_line[1]), float(price_string))  # O(f(N))
-            elif strategy_selection_int == 4:
-                trading_bot.sellOptimal(each_split_line[4], int(each_split_line[1]), float(price_string), 2)  # O(f(N))
-            plot_x.append(len(plot_x))  # O(N=len(list))  # track sales
-            plot_y.append(trading_bot.report_last_profit())
-    return plot_x, plot_y
-
-
+    def report_buy_time_per_dollar(self) -> None:  # price forms a binary relation from bought to sold
+        # print("For the shares sold, per dollar of profit:")  # really, would want to display this averaged over a bunch of strings
+        # print(f"Buy: ")
+        average_buy_time = 0  # in theory, bot could have not purchased shares not included in sales, up to a point (then, you could sell in the order purchased and make the same returns)
+        buy_n = 0
+        for price in self.per_share_sell_times.keys():
+            buy_n += 1
+            average_buy_time = ((buy_n - 1) * average_buy_time + self.per_share_buy_times.get(price)) / buy_n
+        return average_buy_time / self.accumulated_profit()
+    
+    def report_sell_time_per_dollar(self) -> None:
+        average_sell_time = 0
+        sell_n = 0
+        for each_time in [self.per_share_buy_times.get(key_i) for key_i in list(self.per_share_buy_times)]:
+            sell_n += 1
+            average_sell_time = ((sell_n - 1) * average_sell_time + each_time) / sell_n
+        return average_sell_time / self.accumulated_profit()
+    

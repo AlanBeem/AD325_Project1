@@ -22,44 +22,38 @@ class LinkedDeque:
             current_len_node = current_len_node.get_next_node()
         return got_length
 
-    def __eq__(self, other) -> bool:  # O(N) = O(N) + O(N) + ... + O(N)
+    def __getitem__(self, index: int):
+        item = self.front.data  # .copy? deepcopy (for objects) ? I guess it depends.
+        for g in range(len(self)):  # recursive traversal for index?
+            if g == index % len(self):
+                item = self.front.data
+            self.front_to_back()
+        return item
+    
+    def _items_data_list(self) -> list:  # self.var.__class__ ?
+        data_list = []
+        current_data_node = self.front  # front (1 node visited)
+        while current_data_node is not None:  # unless front is None
+            data_list.append(current_data_node.data)
+            current_data_node = current_data_node.get_next_node()
+        return data_list
+
+    def __eq__(self, other) -> bool:  # O(N^2) = O(N^2) = O(N^2) + O(N) * intersection of sets of data portions (self, other)
         # Calling this method results in a cascade of __eq__ methods from LinkedDeque through DLNode, including data_portion
         """This assumes that differently ordered deques (of otherwise identical items) are different deques,
         that is, deques are considered (circular) sequences, not (multi)sets.
         and puts self back as was before equals operation."""
-        # ... and puts the deques back as they were passed."""
-        pass
-    #     equal_bool = False
-    #     if isinstance(other, self.__class__):  # Split this into component methods, like align
-    #                                            # aesthetically, better to change self not other (even though it's put back as it was)
-    #         equal_bool = True
-    #         front_deque_self = self.remove_front()
-    #         self.add_to_back(front_deque_self)
-    #         current_deque_self = self.remove_front()
-    #         self.add_to_back(current_deque_self)
-    #         front_deque_other = other.remove_front()
-    #         other.add_to_back(front_deque_other)
-    #         current_deque_other = other.remove_front()
-    #         other.add_to_back(current_deque_self)
-    #         # maybe do a while boolean loop to effect a do loop
-    #         while (current_deque_other != current_deque_self  # align the deques
-    #                and current_deque_other is not front_deque_other):  # O(Nother)
-    #             current_deque_other = other.remove_front()
-    #             other.add_to_back(current_deque_other)
-    #         else:
-    #             if current_deque_other != current_deque_self:
-    #                 current_deque_other = other.remove_front()
-    #                 other.add_to_back(current_deque_other)
-    #         # either all items of other have been tried, or the front of each deque are equal
-    #         while current_deque_self is not front_deque_self:
-    #             if current_deque_self != current_deque_other:
-    #                 equal_bool = False
-    #                 break
-    #             current_deque_self = self.remove_front()
-    #             self.add_to_back(current_deque_self)
-    #         else:
-    #             pass
-
+        if isinstance(other, self.__class__):
+            eq_s_items = self._items_data_list()
+            eq_o_items = other._items_data_list()
+            eq_bool = True
+            if len(eq_s_items) == len(eq_o_items):
+                for s_e in range(len(eq_s_items)):
+                    for s_o in range(len(eq_o_items)):
+                        incremented_o_items = z
+            else:
+                eq_bool = False
+            return eq_bool
     def add_to_back(self, new_entry) -> None:  # required
         if new_entry is not None:  # These handle null entries so that methods in client classes can send null entries w/o adding DLNode(data_portion=None)
             if not isinstance(new_entry, LinkedDeque.DLNode):
@@ -132,6 +126,23 @@ class LinkedDeque:
     def display(self) -> None:  # required
         # make interactive deque display, and report stats on it  # Ask
         pass
+
+    def get_lambda_data_portion(self, func):
+        """returns the data_portion of the first data_portion in the deque that satisfies the expression (func)"""
+        front_was = self.front
+        lambdaest = None
+        if len(self) > 1 and not func(front_was):  # O(N)
+            current = self.front
+            for l in range(len(self)):
+                if not func(self.get_front()):
+                    self.front_to_back()
+                else:
+                    lambdaest = current
+                    break
+            while self.front is not front_was:
+                self.front_to_back()
+        return lambdaest.get_data()
+    # later, activation function of including stocks
 
     class DLNode:
         def __init__(self, previous_node=None, data_portion=None, next_node=None) -> None:  # required
